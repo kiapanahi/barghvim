@@ -14,23 +14,23 @@ type Metrics struct {
 	HTTPRequestsTotal    metric.Int64Counter
 	HTTPRequestDuration  metric.Float64Histogram
 	HTTPRequestsInFlight metric.Int64UpDownCounter
-	
-	APICallsTotal       metric.Int64Counter
-	APICallDuration     metric.Float64Histogram
-	APICallsFailures    metric.Int64Counter
-	
-	CalendarGenerated   metric.Int64Counter
-	OutagesFetched      metric.Int64Counter
-	
-	ProcessStartTime    metric.Float64Gauge
+
+	APICallsTotal    metric.Int64Counter
+	APICallDuration  metric.Float64Histogram
+	APICallsFailures metric.Int64Counter
+
+	CalendarGenerated metric.Int64Counter
+	OutagesFetched    metric.Int64Counter
+
+	ProcessStartTime metric.Float64Gauge
 }
 
 // New creates and registers all metrics
 func New(meter metric.Meter) (*Metrics, error) {
 	m := &Metrics{}
-	
+
 	var err error
-	
+
 	// HTTP metrics
 	m.HTTPRequestsTotal, err = meter.Int64Counter(
 		"http_requests_total",
@@ -40,7 +40,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	m.HTTPRequestDuration, err = meter.Float64Histogram(
 		"http_request_duration_seconds",
 		metric.WithDescription("Duration of HTTP requests in seconds"),
@@ -49,7 +49,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	m.HTTPRequestsInFlight, err = meter.Int64UpDownCounter(
 		"http_requests_in_flight",
 		metric.WithDescription("Number of HTTP requests currently being processed"),
@@ -58,7 +58,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// API call metrics
 	m.APICallsTotal, err = meter.Int64Counter(
 		"api_calls_total",
@@ -68,7 +68,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	m.APICallDuration, err = meter.Float64Histogram(
 		"api_call_duration_seconds",
 		metric.WithDescription("Duration of external API calls in seconds"),
@@ -77,7 +77,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	m.APICallsFailures, err = meter.Int64Counter(
 		"api_calls_failures_total",
 		metric.WithDescription("Total number of failed external API calls"),
@@ -86,7 +86,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Business logic metrics
 	m.CalendarGenerated, err = meter.Int64Counter(
 		"calendars_generated_total",
@@ -96,7 +96,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	m.OutagesFetched, err = meter.Int64Counter(
 		"outages_fetched_total",
 		metric.WithDescription("Total number of outages fetched"),
@@ -105,7 +105,7 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Process metrics
 	m.ProcessStartTime, err = meter.Float64Gauge(
 		"process_start_time_seconds",
@@ -115,10 +115,10 @@ func New(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Record process start time
 	m.ProcessStartTime.Record(context.Background(), float64(time.Now().Unix()))
-	
+
 	return m, nil
 }
 
@@ -129,7 +129,7 @@ func (m *Metrics) RecordHTTPRequest(ctx context.Context, method, endpoint string
 		attribute.String("endpoint", endpoint),
 		attribute.String("status_code", strconv.Itoa(statusCode)),
 	)
-	
+
 	m.HTTPRequestsTotal.Add(ctx, 1, labels)
 	m.HTTPRequestDuration.Record(ctx, duration.Seconds(), labels)
 }
@@ -159,10 +159,10 @@ func (m *Metrics) RecordAPICall(ctx context.Context, api, operation string, succ
 		attribute.String("operation", operation),
 		attribute.Bool("success", success),
 	)
-	
+
 	m.APICallsTotal.Add(ctx, 1, labels)
 	m.APICallDuration.Record(ctx, duration.Seconds(), labels)
-	
+
 	if !success {
 		failureLabels := metric.WithAttributes(
 			attribute.String("api", api),

@@ -14,15 +14,15 @@ func Handler() http.Handler {
 		ServiceName:    "barghvim",
 		ServiceVersion: "1.0.0",
 		Environment:    "production",
-		OTLPEndpoint:   "", // No OTLP for Vercel
+		OTLPEndpoint:   "",    // No OTLP for Vercel
 		EnableTracing:  false, // Minimal overhead for serverless
 		EnableMetrics:  false, // Minimal overhead for serverless
 	})
-	
+
 	if err != nil {
 		// Fall back to mock telemetry if setup fails
 		tel = telemetry.NewMockTelemetry()
 	}
-	
+
 	return server.New(tel)
 }

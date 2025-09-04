@@ -149,7 +149,7 @@ func LogAPICall(ctx context.Context, api, operation string, success bool, durati
 	}
 
 	entry := WithContext(ctx).WithFields(fields)
-	
+
 	if err != nil {
 		entry = entry.WithError(err)
 		entry.Error("External API call failed")

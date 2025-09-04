@@ -19,25 +19,25 @@ import (
 
 func New(tel *telemetry.Telemetry) *gin.Engine {
 	r := gin.New()
-	
+
 	// Set up metrics
 	appMetrics, err := metrics.New(tel.Meter)
 	if err != nil {
 		logging.Error(context.Background(), "Failed to initialize metrics", err)
 		return nil
 	}
-	
+
 	// Add OpenTelemetry middleware
 	r.Use(otelgin.Middleware("barghvim"))
-	
+
 	// Add custom middleware for structured logging and metrics
 	r.Use(loggingMiddleware())
 	r.Use(metricsMiddleware(appMetrics))
 	r.Use(correlationIDMiddleware())
-	
+
 	// Add Prometheus metrics endpoint
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	
+
 	// Health check endpoint
 	r.GET("/health", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
@@ -45,7 +45,7 @@ func New(tel *telemetry.Telemetry) *gin.Engine {
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 		})
 	})
-	
+
 	v1 := r.Group("/v1")
 	{
 		v1.GET("/:bill/cal.ics", calendarHandler(tel, appMetrics))
@@ -59,10 +59,10 @@ func calendarHandler(tel *telemetry.Telemetry, appMetrics *metrics.Metrics) gin.
 		// Start tracing span
 		spanCtx, span := tel.Tracer.Start(ctx.Request.Context(), "calendar_handler")
 		defer span.End()
-		
+
 		// Update context with span
 		ctx.Request = ctx.Request.WithContext(spanCtx)
-		
+
 		bill := ctx.Param("bill")
 		token := ctx.Query("token")
 
@@ -118,7 +118,7 @@ func calendarHandler(tel *telemetry.Telemetry, appMetrics *metrics.Metrics) gin.
 
 		// Record metrics for calendar generated
 		appMetrics.RecordCalendarGenerated(spanCtx, bill, len(outagesList))
-		
+
 		// Add span attributes for response
 		span.SetAttributes(
 			attribute.Int("outages.count", len(outagesList)),
@@ -129,7 +129,7 @@ func calendarHandler(tel *telemetry.Telemetry, appMetrics *metrics.Metrics) gin.
 		ctx.Header("Cache-Control", "no-store")
 		ctx.Header("Pragma", "no-cache")
 		ctx.Header("Expires", time.Unix(0, 0).UTC().Format(http.TimeFormat))
-		
+
 		logging.Infof(spanCtx, "Successfully generated calendar for bill %s with %d outages", bill, len(outagesList))
 		ctx.Data(http.StatusOK, "text/calendar; charset=utf-8", icsBytes)
 	}
@@ -139,14 +139,14 @@ func calendarHandler(tel *telemetry.Telemetry, appMetrics *metrics.Metrics) gin.
 func correlationIDMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		correlationID := telemetry.CorrelationID()
-		
+
 		// Add to context
 		newCtx := context.WithValue(ctx.Request.Context(), logging.CorrelationIDKey, correlationID)
 		ctx.Request = ctx.Request.WithContext(newCtx)
-		
+
 		// Add to response headers
 		ctx.Header("X-Correlation-ID", correlationID)
-		
+
 		ctx.Next()
 	}
 }
@@ -155,10 +155,10 @@ func correlationIDMiddleware() gin.HandlerFunc {
 func loggingMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
-		
+
 		// Process request
 		ctx.Next()
-		
+
 		// Log request
 		duration := time.Since(start).Seconds()
 		logging.LogHTTPRequest(
@@ -175,13 +175,13 @@ func loggingMiddleware() gin.HandlerFunc {
 func metricsMiddleware(appMetrics *metrics.Metrics) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
-		
+
 		// Increment in-flight requests
 		appMetrics.IncHTTPRequestsInFlight(ctx.Request.Context(), ctx.Request.Method, ctx.Request.URL.Path)
-		
+
 		// Process request
 		ctx.Next()
-		
+
 		// Decrement in-flight requests and record metrics
 		duration := time.Since(start)
 		appMetrics.DecHTTPRequestsInFlight(ctx.Request.Context(), ctx.Request.Method, ctx.Request.URL.Path)

@@ -45,13 +45,13 @@ func Fetch(ctx context.Context, token string, bill string) ([]Outage, error) {
 	tracer := otel.Tracer("outages")
 	spanCtx, span := tracer.Start(ctx, "fetch_outages")
 	defer span.End()
-	
+
 	// Add span attributes
 	span.SetAttributes(
 		attribute.String("bill.id", bill),
 		attribute.Bool("token.provided", token != ""),
 	)
-	
+
 	start := time.Now()
 	success := false
 	defer func() {
@@ -74,14 +74,14 @@ func Fetch(ctx context.Context, token string, bill string) ([]Outage, error) {
 		From:   timeutil.ToJalaliYMD(from.In(loc), loc),
 		To:     timeutil.ToJalaliYMD(to.In(loc), loc),
 	}
-	
+
 	span.SetAttributes(
 		attribute.String("request.from_date", body.From),
 		attribute.String("request.to_date", body.To),
 	)
-	
+
 	logging.Debugf(spanCtx, "Fetching outages for bill %s from %s to %s", bill, body.From, body.To)
-	
+
 	reqBytes, _ := json.Marshal(body)
 
 	req, err := http.NewRequestWithContext(spanCtx, http.MethodPost, apiURL, bytes.NewReader(reqBytes))
@@ -103,7 +103,7 @@ func Fetch(ctx context.Context, token string, bill string) ([]Outage, error) {
 	}
 
 	defer resp.Body.Close()
-	
+
 	span.SetAttributes(
 		attribute.Int("response.status_code", resp.StatusCode),
 	)
@@ -121,7 +121,7 @@ func Fetch(ctx context.Context, token string, bill string) ([]Outage, error) {
 		logging.Error(spanCtx, "Failed to decode JSON response", err)
 		return nil, err
 	}
-	
+
 	span.SetAttributes(
 		attribute.Int("response.api_status", rb.Status),
 		attribute.String("response.api_message", rb.Message),

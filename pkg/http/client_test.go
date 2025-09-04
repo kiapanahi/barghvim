@@ -26,7 +26,7 @@ func TestDefaultHTTPClient(t *testing.T) {
 		// With OpenTelemetry instrumentation, the transport is wrapped
 		// We verify that the transport exists and is functional
 		assert.NotNil(t, Default.Transport, "Transport should be configured")
-		
+
 		// The transport is now wrapped, so we can't directly inspect the underlying *http.Transport
 		// but we can verify it works
 	})
@@ -90,7 +90,7 @@ func TestHTTPClientProductionReadiness(t *testing.T) {
 	t.Run("Connection pooling configured", func(t *testing.T) {
 		// With OpenTelemetry instrumentation, we verify that transport exists and is functional
 		assert.NotNil(t, Default.Transport, "Should have transport configured")
-		
+
 		// The underlying configuration is handled by the instrumented transport
 		// We trust that our setup in client.go is correct
 	})
@@ -98,7 +98,7 @@ func TestHTTPClientProductionReadiness(t *testing.T) {
 	t.Run("Proxy support", func(t *testing.T) {
 		// With OpenTelemetry instrumentation, proxy support is maintained
 		assert.NotNil(t, Default.Transport, "Should have transport configured")
-		
+
 		// The underlying http.Transport with proxy support is wrapped by OpenTelemetry
 		// We trust that our setup preserves proxy functionality
 	})

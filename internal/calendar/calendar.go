@@ -23,13 +23,13 @@ func BuildICSWithContext(ctx context.Context, bill string, items []outages.Outag
 	tracer := otel.Tracer("calendar")
 	spanCtx, span := tracer.Start(ctx, "build_ics")
 	defer span.End()
-	
+
 	// Add span attributes
 	span.SetAttributes(
 		attribute.String("bill.id", bill),
 		attribute.Int("outages.count", len(items)),
 	)
-	
+
 	logging.Debugf(spanCtx, "Building ICS calendar for bill %s with %d outages", bill, len(items))
 
 	loc, err := time.LoadLocation(tzid)
@@ -58,7 +58,7 @@ func BuildICSWithContext(ctx context.Context, bill string, items []outages.Outag
 		ev.SetEndAt(end)
 		eventsAdded++
 	}
-	
+
 	span.SetAttributes(
 		attribute.Int("events.added", eventsAdded),
 	)
@@ -67,7 +67,7 @@ func BuildICSWithContext(ctx context.Context, bill string, items []outages.Outag
 	span.SetAttributes(
 		attribute.Int("calendar.size_bytes", len(calendarBytes)),
 	)
-	
+
 	logging.Infof(spanCtx, "Successfully built ICS calendar for bill %s: %d events, %d bytes", bill, eventsAdded, len(calendarBytes))
 	return calendarBytes, nil
 }

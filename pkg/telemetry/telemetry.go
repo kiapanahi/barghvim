@@ -74,10 +74,10 @@ func Setup(ctx context.Context, config TelemetryConfig) (*Telemetry, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to create tracer provider: %w", err)
 		}
-		
+
 		shutdownFuncs = append(shutdownFuncs, tracerProvider.Shutdown)
 		otel.SetTracerProvider(tracerProvider)
-		
+
 		tel.TracerProvider = tracerProvider
 		tel.Tracer = tracerProvider.Tracer(
 			config.ServiceName,
@@ -91,10 +91,10 @@ func Setup(ctx context.Context, config TelemetryConfig) (*Telemetry, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to create meter provider: %w", err)
 		}
-		
+
 		shutdownFuncs = append(shutdownFuncs, meterProvider.Shutdown)
 		otel.SetMeterProvider(meterProvider)
-		
+
 		tel.MeterProvider = meterProvider
 		tel.Meter = meterProvider.Meter(
 			config.ServiceName,
