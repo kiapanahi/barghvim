@@ -10,14 +10,14 @@ import (
 	"github.com/h2non/gock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	
+
 	httpc "github.com/MoKhajavi75/barghvim/pkg/http"
 )
 
 func TestFetch(t *testing.T) {
 	// Ensure gock is properly configured to intercept our HTTP client
 	defer gock.Off()
-	
+
 	// Configure gock to intercept the default HTTP client used by our code
 	gock.InterceptClient(httpc.Default)
 
@@ -275,7 +275,7 @@ func TestFetch_RequestBodyValidation(t *testing.T) {
 
 	// Capture the request body
 	var requestBody map[string]interface{}
-	
+
 	gock.New("https://uiapi2.saapa.ir").
 		Post("/api/ebills/PlannedBlackoutsReport").
 		SetMatcher(gock.NewMatcher()).
@@ -367,10 +367,10 @@ func TestFetch_NetworkError(t *testing.T) {
 // Benchmark tests
 func BenchmarkFetch_MockedResponse(b *testing.B) {
 	defer gock.Off()
-	
+
 	// Configure gock to intercept the default HTTP client
 	gock.InterceptClient(httpc.Default)
-	
+
 	mockResponse := respBody{
 		Status:  200,
 		Message: "Success",
@@ -388,11 +388,11 @@ func BenchmarkFetch_MockedResponse(b *testing.B) {
 		JSON(mockResponse)
 
 	ctx := context.Background()
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Fetch(ctx, "test-token", "12345678")
 	}
-	
+
 	gock.Clean()
 }

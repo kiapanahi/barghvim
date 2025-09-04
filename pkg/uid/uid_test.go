@@ -54,16 +54,16 @@ func TestEventUID(t *testing.T) {
 
 			// Verify UID format
 			assert.Contains(t, uid, "@taghvim-bargh", "UID should contain domain suffix")
-			
+
 			// Verify UID length (SHA1 hex + "@taghvim-bargh")
 			expectedLength := 40 + len("@taghvim-bargh") // SHA1 is 40 hex chars
 			assert.Equal(t, expectedLength, len(uid), "UID should have correct length")
-			
+
 			// Verify it's a valid hex string before the @
 			hexPart := uid[:40]
 			_, err := hex.DecodeString(hexPart)
 			assert.NoError(t, err, "First part should be valid hex")
-			
+
 			// Verify it ends with the correct domain
 			assert.True(t, len(uid) >= len("@taghvim-bargh"), "UID should be long enough")
 			assert.Equal(t, "@taghvim-bargh", uid[len(uid)-len("@taghvim-bargh"):], "UID should end with correct domain")
@@ -86,7 +86,7 @@ func TestEventUID_Deterministic(t *testing.T) {
 func TestEventUID_Unique(t *testing.T) {
 	// Different inputs should produce different UIDs
 	baseTime := time.Date(2024, 6, 15, 9, 0, 0, 0, time.UTC)
-	
+
 	testCases := []struct {
 		name  string
 		bill  string
@@ -101,11 +101,11 @@ func TestEventUID_Unique(t *testing.T) {
 	}
 
 	uids := make(map[string]string)
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			uid := EventUID(tc.bill, tc.start, tc.end)
-			
+
 			// Check if this UID was already generated
 			if existingCase, exists := uids[uid]; exists {
 				t.Errorf("UID collision between '%s' and '%s': %s", tc.name, existingCase, uid)
@@ -136,7 +136,7 @@ func TestEventUID_EdgeCases(t *testing.T) {
 		// Even with empty bill, should still generate valid UID
 		start := time.Date(2024, 6, 15, 9, 0, 0, 0, time.UTC)
 		end := time.Date(2024, 6, 15, 12, 0, 0, 0, time.UTC)
-		
+
 		uid := EventUID("", start, end)
 		assert.Contains(t, uid, "@taghvim-bargh")
 		assert.Equal(t, 40+len("@taghvim-bargh"), len(uid))
@@ -145,7 +145,7 @@ func TestEventUID_EdgeCases(t *testing.T) {
 	t.Run("Same start and end time", func(t *testing.T) {
 		// Zero-duration event should still generate valid UID
 		moment := time.Date(2024, 6, 15, 9, 0, 0, 0, time.UTC)
-		
+
 		uid := EventUID("12345678", moment, moment)
 		assert.Contains(t, uid, "@taghvim-bargh")
 		assert.Equal(t, 40+len("@taghvim-bargh"), len(uid))
@@ -156,7 +156,7 @@ func TestEventUID_EdgeCases(t *testing.T) {
 		longBill := "123456789012345678901234567890"
 		start := time.Date(2024, 6, 15, 9, 0, 0, 0, time.UTC)
 		end := time.Date(2024, 6, 15, 12, 0, 0, 0, time.UTC)
-		
+
 		uid := EventUID(longBill, start, end)
 		assert.Contains(t, uid, "@taghvim-bargh")
 		assert.Equal(t, 40+len("@taghvim-bargh"), len(uid))
@@ -166,7 +166,7 @@ func TestEventUID_EdgeCases(t *testing.T) {
 		// Far future dates should work
 		start := time.Date(2124, 6, 15, 9, 0, 0, 0, time.UTC)
 		end := time.Date(2124, 6, 15, 12, 0, 0, 0, time.UTC)
-		
+
 		uid := EventUID("12345678", start, end)
 		assert.Contains(t, uid, "@taghvim-bargh")
 		assert.Equal(t, 40+len("@taghvim-bargh"), len(uid))
@@ -176,7 +176,7 @@ func TestEventUID_EdgeCases(t *testing.T) {
 		// Unix epoch should work
 		start := time.Unix(0, 0)
 		end := time.Unix(3600, 0) // 1 hour later
-		
+
 		uid := EventUID("12345678", start, end)
 		assert.Contains(t, uid, "@taghvim-bargh")
 		assert.Equal(t, 40+len("@taghvim-bargh"), len(uid))
@@ -187,17 +187,17 @@ func TestEventUID_TimezoneHandling(t *testing.T) {
 	// UIDs should be the same regardless of timezone representation
 	// if the actual moment is the same
 	bill := "12345678"
-	
+
 	// Same moment in different timezones
 	utcTime := time.Date(2024, 6, 15, 9, 0, 0, 0, time.UTC)
 	tehranTime := utcTime.In(time.FixedZone("IRST", 4*3600+30*60)) // UTC+4:30
-	
+
 	utcEnd := time.Date(2024, 6, 15, 12, 0, 0, 0, time.UTC)
 	tehranEnd := utcEnd.In(time.FixedZone("IRST", 4*3600+30*60))
-	
+
 	uidUTC := EventUID(bill, utcTime, utcEnd)
 	uidTehran := EventUID(bill, tehranTime, tehranEnd)
-	
+
 	assert.Equal(t, uidUTC, uidTehran, "UIDs should be same for same moment in different timezones")
 }
 

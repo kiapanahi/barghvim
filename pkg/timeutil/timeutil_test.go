@@ -172,7 +172,7 @@ func TestFromJalaliYMDHM(t *testing.T) {
 			} else {
 				assert.NoError(t, err, "Expected no error for %s", tt.description)
 				assert.False(t, result.IsZero(), "Result should not be zero time on success")
-				
+
 				// Verify the time is in the correct timezone
 				assert.Equal(t, loc, result.Location(), "Result should be in Tehran timezone")
 			}
@@ -187,15 +187,15 @@ func TestFromJalaliYMDHM_RoundTrip(t *testing.T) {
 
 	// Test with a known good time
 	original := time.Date(2024, 6, 21, 10, 30, 0, 0, loc) // Summer solstice
-	
+
 	// Convert to Jalali
 	jalaliDate := ToJalaliYMD(original, loc)
 	jalaliTime := "10:30"
-	
+
 	// Convert back
 	converted, err := FromJalaliYMDHM(jalaliDate, jalaliTime, loc)
 	require.NoError(t, err)
-	
+
 	// The dates should match (ignoring seconds since we don't include them)
 	assert.Equal(t, original.Year(), converted.Year())
 	assert.Equal(t, original.Month(), converted.Month())
@@ -220,13 +220,13 @@ func TestTimeUtilEdgeCases(t *testing.T) {
 	t.Run("DST transitions", func(t *testing.T) {
 		// Test dates around DST transitions in Iran
 		// Iran typically changes DST around March 22 and September 22
-		
+
 		beforeDST, err := FromJalaliYMDHM("1403/01/01", "02:00", loc) // Around March 21
 		assert.NoError(t, err)
-		
+
 		afterDST, err := FromJalaliYMDHM("1403/07/01", "02:00", loc) // Around September 22
 		assert.NoError(t, err)
-		
+
 		// Both should succeed
 		assert.False(t, beforeDST.IsZero())
 		assert.False(t, afterDST.IsZero())
@@ -238,7 +238,7 @@ func TestTimeUtilEdgeCases(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 0, midnight.Hour())
 		assert.Equal(t, 0, midnight.Minute())
-		
+
 		almostMidnight, err := FromJalaliYMDHM("1403/01/01", "23:59", loc)
 		assert.NoError(t, err)
 		assert.Equal(t, 23, almostMidnight.Hour())
@@ -250,7 +250,7 @@ func TestTimeUtilEdgeCases(t *testing.T) {
 func BenchmarkToJalaliYMD(b *testing.B) {
 	loc, _ := time.LoadLocation("Asia/Tehran")
 	testTime := time.Now().In(loc)
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		ToJalaliYMD(testTime, loc)
@@ -259,7 +259,7 @@ func BenchmarkToJalaliYMD(b *testing.B) {
 
 func BenchmarkFromJalaliYMDHM(b *testing.B) {
 	loc, _ := time.LoadLocation("Asia/Tehran")
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		FromJalaliYMDHM("1403/06/15", "14:30", loc)

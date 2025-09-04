@@ -101,11 +101,11 @@ func (TestBills) Valid() []string {
 // Invalid returns invalid test bill IDs for error testing
 func (TestBills) Invalid() []string {
 	return []string{
-		"",           // Empty
-		"1234567",    // Too short
+		"",              // Empty
+		"1234567",       // Too short
 		"1234567890123", // Too long
-		"abcd1234",   // Contains letters
-		"1234-5678",  // Contains special chars
+		"abcd1234",      // Contains letters
+		"1234-5678",     // Contains special chars
 	}
 }
 
@@ -129,9 +129,9 @@ func (TestTokens) Valid() []string {
 // Invalid returns invalid test tokens
 func (TestTokens) Invalid() []string {
 	return []string{
-		"",        // Empty
-		"short",   // Too short
-		"a",       // Single character
+		"",      // Empty
+		"short", // Too short
+		"a",     // Single character
 	}
 }
 
@@ -186,16 +186,16 @@ func (TestDates) ValidTimes() []string {
 // InvalidTimes returns invalid time strings
 func (TestDates) InvalidTimes() []string {
 	return []string{
-		"",           // Empty
-		"9:00",       // Single digit hour
-		"09:0",       // Single digit minute
-		"24:00",      // Invalid hour
-		"09:60",      // Invalid minute
-		"-1:00",      // Negative hour
-		"09:-1",      // Negative minute
-		"invalid",    // Non-numeric
-		"0900",       // No separator
-		"09-00",      // Wrong separator
+		"",        // Empty
+		"9:00",    // Single digit hour
+		"09:0",    // Single digit minute
+		"24:00",   // Invalid hour
+		"09:60",   // Invalid minute
+		"-1:00",   // Negative hour
+		"09:-1",   // Negative minute
+		"invalid", // Non-numeric
+		"0900",    // No separator
+		"09-00",   // Wrong separator
 	}
 }
 

@@ -31,7 +31,7 @@ func TestRouterBasicFunctionality(t *testing.T) {
 
 		// Should return bad request
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "Should return 400 for missing bill")
-		
+
 		// Read response body
 		buf := make([]byte, 256)
 		n, _ := resp.Body.Read(buf)
@@ -48,7 +48,7 @@ func TestRouterBasicFunctionality(t *testing.T) {
 
 		// Should return bad request
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "Should return 400 for missing token")
-		
+
 		// Read response body
 		buf := make([]byte, 256)
 		n, _ := resp.Body.Read(buf)
@@ -70,7 +70,7 @@ func TestRouterHTTPMethods(t *testing.T) {
 		resp, err := testClient.Do(req)
 		require.NoError(t, err)
 		defer resp.Body.Close()
-		
+
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode, "Should return 404 for POST")
 	})
 
@@ -80,7 +80,7 @@ func TestRouterHTTPMethods(t *testing.T) {
 		resp, err := testClient.Do(req)
 		require.NoError(t, err)
 		defer resp.Body.Close()
-		
+
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode, "Should return 404 for PUT")
 	})
 
@@ -90,7 +90,7 @@ func TestRouterHTTPMethods(t *testing.T) {
 		resp, err := testClient.Do(req)
 		require.NoError(t, err)
 		defer resp.Body.Close()
-		
+
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode, "Should return 404 for DELETE")
 	})
 }
