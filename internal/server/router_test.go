@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/MoKhajavi75/barghvim/pkg/telemetry"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,7 +17,8 @@ func init() {
 }
 
 func TestRouterBasicFunctionality(t *testing.T) {
-	router := New()
+	mockTel := telemetry.NewMockTelemetry()
+	router := New(mockTel)
 	server := httptest.NewServer(router)
 	defer server.Close()
 
@@ -58,7 +60,8 @@ func TestRouterBasicFunctionality(t *testing.T) {
 }
 
 func TestRouterHTTPMethods(t *testing.T) {
-	router := New()
+	mockTel := telemetry.NewMockTelemetry()
+	router := New(mockTel)
 	server := httptest.NewServer(router)
 	defer server.Close()
 
@@ -97,12 +100,14 @@ func TestRouterHTTPMethods(t *testing.T) {
 
 func TestRouterStructure(t *testing.T) {
 	t.Run("Router creation", func(t *testing.T) {
-		router := New()
-		assert.NotNil(t, router, "Should create router successfully")
+		mockTel := telemetry.NewMockTelemetry()
+		router := New(mockTel)
+		assert.NotNil(t, router, "Router should be created")
 	})
 
 	t.Run("Router returns gin engine", func(t *testing.T) {
-		router := New()
-		assert.IsType(t, &gin.Engine{}, router, "Should return gin.Engine")
+		mockTel := telemetry.NewMockTelemetry()
+		router := New(mockTel)
+		assert.IsType(t, &gin.Engine{}, router, "Router should be a gin.Engine instance")
 	})
 }
